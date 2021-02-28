@@ -50,7 +50,7 @@ async function searchitem(str)
 
 			var newterm = $('ul.mw-search-results > li.mw-search-result > div.mw-search-result-heading > a:first').text();
 			result.push( await getContents(newterm));   
-			result = result.flat(1);
+			result = [].concat(...result);
 		}	
 
 		return result;
