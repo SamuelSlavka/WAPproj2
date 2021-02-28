@@ -1,10 +1,10 @@
 # WAPproj2
 
-installation:
+#### Setup:
   npm install express
   
- running:
+#### Starting server:
   node app.js
   
- testing:
+ #### Execution:
   http://localhost:8080/<query>
