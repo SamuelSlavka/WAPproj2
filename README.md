@@ -1,7 +1,7 @@
 # WAPproj2
 
 #### Setup:
-    npm install express
+    npm i
   
 #### Starting server:
     node app.js
