@@ -56,22 +56,23 @@ app.get('/articles/:val/images', async function (req, res, next) {
         return
     }
     try {
-        const {data} = await axios.get(
-            'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article
-        );
+        let page_url = 'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article;
+        const {data} = await axios.get(page_url);
         const $ = cheerio.load(data);
-
+        var results = [];
+        $("img").each(function(i, image) {
+            results.push(url.resolve(page_url, $(image).attr('src')));
+        });
         let image = $('.infobox').find('img').attr('src');
         if (!!image) {
-            image = 'https:' + image
+            image = url.resolve(page_url, image)
         } else {
             image = null;
         }
 
-
-        res.status(200).type('application/json').send({image: image})
+        res.status(200).type('application/json').send({image: image, images: results})
     } catch (error) {
-        console.log(error)
+        console.log(error);
         res.status(404).type('application/json').send({error: 'Wikipedia does not have an article with this exact name.'})
     }
 });
