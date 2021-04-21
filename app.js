@@ -46,6 +46,32 @@ app.get('/articles/:val', async function (req, res, next) {
     }
 });
 
+app.get('/articles/:val/contents', async function (req, res, next) {
+    let article = req.params.val;
+    let verifiedLanguage = verifyLanguage(req.query.lang);
+
+    if (!verifiedLanguage.valid) {
+        res.status(400).type('application/json').send({error: 'Wikipedia does not support ' + verifiedLanguage.lang + ' language'});
+        return
+    }    
+    try {
+        let page_url = 'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article;
+        const {data} = await axios.get(page_url);
+        const $ = cheerio.load(data);
+
+        var content = []
+        var result = []
+        content.push($('#toc > ul').text());
+        content.forEach(element => {
+            // remove endline chars
+            result.push(element.replace(/[\n\r]/g, ' '))
+        });
+        res.status(200).type('application/json').send({contents: result})
+    } catch (error) {
+        console.log(error);
+        res.status(404).type('application/json').send({error: 'Wikipedia does not have an article with this exact name.'})
+    }
+});
 
 app.get('/articles/:val/images', async function (req, res, next) {
     let article = req.params.val;
