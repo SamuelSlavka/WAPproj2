@@ -61,11 +61,21 @@ app.get('/articles/:val/contents', async function (req, res, next) {
 
         var content = []
         var result = []
-        content.push($('#toc > ul').text());
-        content.forEach(element => {
-            // remove endline chars
-            result.push(element.replace(/[\n\r]/g, ' '))
+        var first
+        $('#toc > ul > li').each(function(i,elem) {
+            var subcontents = []
+            $(this).find('a').each(function(i,elem){
+                if(i==0) first = $(this).text(); 
+                else subcontents.push($(this).text());
+            });
+            if(subcontents.length == 0)
+                result.push([first]);
+            else
+                result.push([first,subcontents]);
+
         });
+        // remove endline chars
+
         res.status(200).type('application/json').send({contents: result})
     } catch (error) {
         console.log(error);
