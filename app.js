@@ -97,10 +97,12 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                 if (i == 0) first = $(this).text();
                 else subcontents.push($(this).text());
             });
+            
             if (subcontents.length == 0)
-                result.push([first]);
-            else
+                result.push(first);
+            else{
                 result.push([first, subcontents]);
+            }
 
         });
         // remove endline chars
