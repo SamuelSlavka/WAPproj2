@@ -114,7 +114,6 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                     section.subsections.push(subsection);
                 }
             });
-            result.push([section]);
         });
         // remove endline chars
 
