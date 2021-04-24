@@ -88,20 +88,33 @@ app.get('/articles/:val/contents', async function (req, res, next) {
         const {data} = await axios.get(page_url);
         const $ = cheerio.load(data);
 
-        var content = []
-        var result = []
-        var first
+        let result = [];
+        let first;
         $('#toc > ul > li').each(function (i, elem) {
-            var subcontents = []
+            let section = {
+                index: "",
+                name: "",
+                subsections: [],
+            };
             $(this).find('a').each(function (i, elem) {
-                if (i == 0) first = $(this).text();
-                else subcontents.push($(this).text());
+                if (i === 0) {
+                    first = $(this).text();
+                    let [index, ...name] = first.split( " ");
+                    name = name.join(' ');
+                    section.index = index;
+                    section.name = name;
+                }
+                else {
+                    let [index, ...name] = $(this).text().split( " ");
+                    name = name.join(' ');
+                    let subsection = {
+                        index: index,
+                        name: name
+                    };
+                    section.subsections.push(subsection);
+                }
             });
-            if (subcontents.length == 0)
-                result.push([first]);
-            else
-                result.push([first, subcontents]);
-
+            result.push([section]);
         });
         // remove endline chars
 
