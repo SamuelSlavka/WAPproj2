@@ -118,7 +118,7 @@ app.get('/articles/:val/images', async function (req, res, next) {
 async function getContents(str, language) {
     try {
         const {data} = await axios.get(
-            'https://' + language + '.wikipedia.org/wiki/' + str
+            encodeURI('https://' + language + '.wikipedia.org/wiki/' + str)
         );
         const $ = cheerio.load(data);
 
