@@ -27,12 +27,17 @@ app.get('/', function (req, res) {
 
 
 app.get('/search', async function (req, res) {
+    if (!req.query.search) {
+        res.status(400).type('application/json').send({error: "Search query parameter is required"});
+        return
+    }
     let searchedString = req.query.search;
+
     axios
         .get(encodeURI("https://en.wikipedia.org/w/api.php?action=opensearch&search=" + searchedString + "&limit=5&namespace=0&format=json"))
         .then(response => {
             if (response.data[1].length === 0) {
-                res.status(404).type('application/json').send({error: "No article found with search: " + searchedString})
+                res.status(404).type('application/json').send({error: "No article found with search: " + searchedString});
                 return
             }
             let r = {
@@ -47,8 +52,6 @@ app.get('/search', async function (req, res) {
         .catch(err => {
             res.status(500).type('application/json').send({error: err})
         });
-
-
 });
 
 
