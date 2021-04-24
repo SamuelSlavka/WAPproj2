@@ -26,6 +26,32 @@ app.get('/', function (req, res) {
 });
 
 
+app.get('/search', async function (req, res) {
+    let searchedString = req.query.search;
+    axios
+        .get(encodeURI("https://en.wikipedia.org/w/api.php?action=opensearch&search=" + searchedString + "&limit=5&namespace=0&format=json"))
+        .then(response => {
+            if (response.data[1].length === 0) {
+                res.status(404).type('application/json').send({error: "No article found with search: " + searchedString})
+                return
+            }
+            let r = {
+                "searched_by": response.data[0],
+                "best_match_article_name": response.data[1][0],
+                "best_match_article_url": decodeURI(response.data[3][0]).split("/").pop(),
+                "suggested_articles": response.data[1],
+                "suggested_urls": response.data[3].map(x=>decodeURI(x).split("/").pop()),
+            };
+            res.status(200).type('application/json').send(r)
+        })
+        .catch(err => {
+            res.status(500).type('application/json').send({error: err})
+        });
+
+
+});
+
+
 app.get('/articles/:val', async function (req, res, next) {
     let verifiedLanguage = verifyLanguage(req.query.lang);
 
@@ -53,7 +79,7 @@ app.get('/articles/:val/contents', async function (req, res, next) {
     if (!verifiedLanguage.valid) {
         res.status(400).type('application/json').send({error: 'Wikipedia does not support ' + verifiedLanguage.lang + ' language'});
         return
-    }    
+    }
     try {
         let page_url = 'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article;
         const {data} = await axios.get(page_url);
@@ -62,16 +88,16 @@ app.get('/articles/:val/contents', async function (req, res, next) {
         var content = []
         var result = []
         var first
-        $('#toc > ul > li').each(function(i,elem) {
+        $('#toc > ul > li').each(function (i, elem) {
             var subcontents = []
-            $(this).find('a').each(function(i,elem){
-                if(i==0) first = $(this).text(); 
+            $(this).find('a').each(function (i, elem) {
+                if (i == 0) first = $(this).text();
                 else subcontents.push($(this).text());
             });
-            if(subcontents.length == 0)
+            if (subcontents.length == 0)
                 result.push([first]);
             else
-                result.push([first,subcontents]);
+                result.push([first, subcontents]);
 
         });
         // remove endline chars
@@ -96,7 +122,7 @@ app.get('/articles/:val/images', async function (req, res, next) {
         const {data} = await axios.get(page_url);
         const $ = cheerio.load(data);
         var results = [];
-        $("img").each(function(i, image) {
+        $("img").each(function (i, image) {
             results.push(url.resolve(page_url, $(image).attr('src')));
         });
         let image = $('.infobox').find('img').attr('src');
