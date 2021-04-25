@@ -86,7 +86,7 @@ app.get('/articles/:val/contents', async function (req, res, next) {
     }
     try {
         let page_url = 'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article;
-        const { data } = await axios.get(page_url);
+        const { data } = await axios.get(encodeURI(page_url));
         const $ = cheerio.load(data);
 
         let result = [];
@@ -97,7 +97,7 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                 subsections: [],
             };
             level = 2;
-            prevSection=[];
+            prevSection = [];
             $(this).find('a').each(function (i, elem) {
                 if (i === 0) {
                     section = findSubsections($(this));
@@ -109,7 +109,7 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                     currentSection = section;
                 }
                 else {
-                    //get level from list class
+                    //get new level from class
                     str = $(this).parent().attr('class');
                     newLevel = str.match(/\d+/);
                     newLevel = parseInt(newLevel, 10);
@@ -120,8 +120,8 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                         level++;
                     }
                     else if (level > newLevel) {
-                        currentSection = prevSection[newLevel];                      
-                        level=newLevel;
+                        currentSection = prevSection[newLevel];
+                        level = newLevel;
                     }
                     topSection = findSubsections($(this));
                     currentSection.subsections.push(topSection);
@@ -159,7 +159,7 @@ app.get('/articles/:val/images', async function (req, res, next) {
     }
     try {
         let page_url = 'https://' + verifiedLanguage.lang + '.wikipedia.org/wiki/' + article;
-        const { data } = await axios.get(page_url);
+        const { data } = await axios.get(encodeURI(page_url));
         const $ = cheerio.load(data);
         var results = [];
         $("img").each(function (i, image) {
