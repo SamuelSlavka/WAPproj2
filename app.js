@@ -96,15 +96,16 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                 name: "",
                 subsections: [],
             };
-            var level = "2";
+            level = 2;
+            prevSection=[];
             $(this).find('a').each(function (i, elem) {
                 if (i === 0) {
                     section = findSubsections($(this));
                     //current level
                     level = 2;
+                    topSection = section;
                     //history of recent levels
-                    lastSection = section;
-                    prevSection = section;
+                    prevSection[level] = section;
                     currentSection = section;
                 }
                 else {
@@ -114,16 +115,16 @@ app.get('/articles/:val/contents', async function (req, res, next) {
                     newLevel = parseInt(newLevel, 10);
                     //if level has changed, change sections
                     if (level < newLevel) {
-                        prevSection = currentSection
-                        currentSection = lastSection;
+                        prevSection[newLevel] = currentSection
+                        currentSection = topSection;
                         level++;
                     }
                     else if (level > newLevel) {
-                        currentSection = prevSection;
-                        level--;
+                        currentSection = prevSection[newLevel];                      
+                        level=newLevel;
                     }
-                    lastSection = findSubsections($(this));
-                    currentSection.subsections.push(lastSection);
+                    topSection = findSubsections($(this));
+                    currentSection.subsections.push(topSection);
                 }
             });
             result.push(section);
